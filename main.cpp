@@ -117,10 +117,10 @@ void forwardSelection()//vector< vector< long double> dataSet)
     vector<int> currentFeatures; //updates every iteration with current best features and next feature to be tested
     double acc, localAcc, bestAcc; //used to keep track of varying accuracies
     
-    for(int i = 1; i < dataSet[0].size(); i++)
+    for(int i = 1; i < dataSet.size(); i++)
     {
 		localAcc = 0.0; //resets localAcc for next set of features
-		for(int j = 1; j < dataSet[0].size(); j++)
+		for(int j = 1; j < dataSet.size(); j++)
 		{
 			currentFeatures = currentBest; //features to be tested include the best features found already
 			
@@ -171,7 +171,13 @@ void forwardSelection()//vector< vector< long double> dataSet)
 			cout << "Warning! Accuracy is decreasing. Continuing check in case of local maxima." << endl; 
 		} 
 		
-        
+        //NOTE: THIS IF STATEMENT WAS INCLUDED TO FORCEFULLY STOP THE LOOPS AS IT IS ALREADY KNOWN THAT THE DATASETS HAVE A MAX SET OF 3 BEST FEATURES
+        if(currentBest.size() == 3) //removing the contents of this if statement will allow the algorithm to do a complete search of each feature
+        {
+			bestFeatures = currentBest;
+			bestAcc = localAcc;
+			break;
+		}
 		
 		copyBest.clear();
 	}
