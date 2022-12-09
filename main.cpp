@@ -204,6 +204,7 @@ void backwardElimination()
     dataCopy.push_back(dataSet.at(0)); //add class labels from dataSet to dataCopy
     vector<int> currentFeatures; //updates every iteration with current best features and next feature to be tested
     double acc, localAcc, bestAcc; //used to keep track of varying accuracies
+    int removedFeature;
     
     for(int i = 0; i < bestFeatures.size(); i++) //populates bestFeatures with all features
     {
@@ -224,10 +225,11 @@ void backwardElimination()
 				dataCopy.push_back(dataSet.at(currentFeatures.at(k))); //adds the next column feature to dataCopy from already selected features
 			}
 			
-			if(find(currentFeatures.begin(), currentFeatures.end(), j) == currentFeatures.end()) //if feature "j" was not found then it can be added to currentFeatures (avoids duplicates)
+			if(find(currentFeatures.begin(), currentFeatures.end(), j) != currentFeatures.end()) //flipped equivalent of forwardSelection
 			{
-				dataCopy.erase(dataSet.begin() + j); //removes worse column of features   
-				currentFeatures.erase(currentFeatures.begin() + j); //adds next column of features
+				removedFeature = (find(currentFeatures.begin(), currentFeatures.end(), j)) - currentFeatures.begin() + 1; //keeps track of the appropriate removed feature
+				dataCopy.erase(dataSet.begin() + removedFeature); //removes worse column of features   
+				currentFeatures.erase(find(currentFeatures.begin(), currentFeatures.end(), j)); //removes feature at its appropriate location
 				cout << "Using feature(s) { "; 
             
 				for(int l = 0; l < currentFeatures.size(); l++) 
@@ -259,7 +261,7 @@ void backwardElimination()
 		} 
         cout << "} was best, accuracy is " << setprecision(4) << localAcc << "%" << endl << endl; 
         
-        if(localAcc > bestAcc || currentBest.size() < 3) //Not sure if second half contributes anything but keeping it regardless
+        if(localAcc > bestAcc)// || currentBest.size() < 3) //Not sure if second half contributes anything but keeping it regardless
         { 
 			bestFeatures = currentBest; 
 			bestAcc = localAcc;
@@ -270,12 +272,12 @@ void backwardElimination()
 		} 
 		
         //NOTE: THIS IF STATEMENT WAS INCLUDED TO FORCEFULLY STOP THE LOOPS AS IT IS ALREADY KNOWN THAT THE DATASETS HAVE A MAX SET OF 3 BEST FEATURES
-        if(currentBest.size() == 3) //removing the contents of this if statement will allow the algorithm to do a complete search of each feature
-        {
-			bestFeatures = currentBest;
-			bestAcc = localAcc;
-			break;
-		}
+        //if(currentBest.size() == 3) //removing the contents of this if statement will allow the algorithm to do a complete search of each feature
+        //{
+			//bestFeatures = currentBest;
+			//bestAcc = localAcc;
+			//break;
+		//}
 		
 		copyBest.clear();
 	}
@@ -321,7 +323,7 @@ int main()
 			
 			loadData(selectedFile);
 			
-			cout << dataSet.size() << endl << dataSet[0].size() << endl;
+			//cout << dataSet.size() << endl << dataSet[0].size() << endl;
 			
 			cout << "Enter the corresponding number for the algorithm you want to run." << endl;
 			cout << "1) Forward Selection \n" << "2) Backward Elimination" << endl;
@@ -331,13 +333,39 @@ int main()
 			if(input == "1")
 			{
 				// calls Forward Selection function
+				auto start = high_resolution_clock::now();
 				forwardSelection();
+				auto stop = high_resolution_clock::now();
+				auto duration = duration_cast<seconds>(stop - start);
+				
+				double totalTime = duration.count();
+				string timeType = "seconds";
+				if(duration.count() > 120)
+				{
+					totalTime = duration.count() / 60;
+					timeType = "minutes";
+				}
+	
+				cout << "Program ran for about " << setprecision(4) << totalTime << " seconds." << endl;
 				validInput = true;
 			}
 			else if(input == "2")
 			{
 				// calls Backward Elimination function
+				auto start = high_resolution_clock::now();
 				backwardElimination();
+				auto stop = high_resolution_clock::now();
+				auto duration = duration_cast<seconds>(stop - start);
+				
+				double totalTime = duration.count();
+				string timeType = "seconds";
+				if(duration.count() > 120)
+				{
+					totalTime = duration.count() / 60;
+					timeType = "minutes";
+				}
+	
+				cout << "Program ran for about " << setprecision(4) << totalTime << " " << timeType << endl;
 				validInput = true;
 			}
 			else
