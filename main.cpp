@@ -38,7 +38,7 @@ void loadData(string selectedFile)
 	{
 		stringstream fileStream(currLine);
 		
-		for(int i = 0; i < featureSet.size(); i++) //goes through each column feature and adds it to its respective feature
+		for(int i = 0; i < dataSet.size(); i++) //goes through each column feature and adds it to its respective feature
 		{
 			if(fileStream >> feature)
 			{
@@ -171,13 +171,7 @@ void forwardSelection()//vector< vector< long double> dataSet)
 			cout << "Warning! Accuracy is decreasing. Continuing check in case of local maxima." << endl; 
 		} 
 		
-        //NOTE: THIS IF STATEMENT WAS INCLUDED TO FORCEFULLY STOP THE LOOPS AS IT IS ALREADY KNOWN THAT THE DATASETS HAVE A MAX SET OF 3 BEST FEATURES
-        if(currentBest.size() == 3) //removing the contents of this if statement will allow the algorithm to do a complete search of each feature
-        {
-			bestFeatures = currentBest;
-			bestAcc = localAcc;
-			break;
-		}
+        
 		
 		copyBest.clear();
 	}
@@ -185,7 +179,8 @@ void forwardSelection()//vector< vector< long double> dataSet)
 	cout << endl << "Finished search!!" << endl; 
     cout << "The best feature subset of 3 is: "; 
     for(int i = 0; i < bestFeatures.size(); i++) { cout << bestFeatures.at(i) << " "; } 
-    cout << "which has an accuracy of " << bestAcc << "%" << endl;    
+    cout << "which has an accuracy of " << bestAcc << "%" << endl; 
+    
 }
 
 void backwardElimination()
@@ -202,8 +197,8 @@ int main()
 	string selectedFile, currLine, feature;
 	
 	//datasets are in a 2D format which means 2D vectors
-	vector <vector <long double>> dataSet; //separates the data set into individual rows
-	vector<long double> featureSet; //the columns in the data set
+	//vector <vector <long double>> dataSet; //separates the data set into individual rows
+	//vector<long double> featureSet; //the columns in the data set
 	
 	
 	
@@ -224,6 +219,8 @@ int main()
 			validFile = true;
 			
 			loadData(selectedFile);
+			
+			cout << dataSet.size() << endl << dataSet[0].size() << endl;
 			
 			cout << "Enter the corresponding number for the algorithm you want to run." << endl;
 			cout << "1) Forward Selection \n" << "2) Backward Elimination" << endl;
