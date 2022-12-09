@@ -5,6 +5,7 @@
 #include <sstream>
 #include <cmath>
 #include <chrono>
+#include <iomanip>
 
 using namespace std;
 using namespace std::chrono;
@@ -106,7 +107,7 @@ double accuracy(vector <vector <long double>> dataSet) //nearest neighbor should
 	return accuracy;
 }
 
-void forwardSelection(vector< vector< long double> dataSet)
+void forwardSelection()//vector< vector< long double> dataSet)
 {
 	vector<int> bestFeatures; //only used to store final set of best features for output
     vector<int> currentBest;  //updates every iteration with the best feature(s)
@@ -116,6 +117,75 @@ void forwardSelection(vector< vector< long double> dataSet)
     vector<int> currentFeatures; //updates every iteration with current best features and next feature to be tested
     double acc, localAcc, bestAcc; //used to keep track of varying accuracies
     
+    for(int i = 1; i < dataSet[0].size(); i++)
+    {
+		localAcc = 0.0; //resets localAcc for next set of features
+		for(int j = 1; j < dataSet[0].size(); j++)
+		{
+			currentFeatures = currentBest; //features to be tested include the best features found already
+			
+			for(int k = 0; k < currentFeatures.size(); k++)
+			{
+				dataCopy.push_back(dataSet.at(currentFeatures.at(k))); //adds the next column feature to dataCopy from already selected features
+			}
+			
+			dataCopy.push_back(dataSet.at(j)); //adds next column of features   
+            currentFeatures.push_back(j); //adds next column of features
+            cout << "Using feature(s) { "; 
+            
+            for(int l = 0; l < currentFeatures.size(); l++) 
+            {
+				cout << currentFeatures.at(l) << " "; 
+			}
+				
+			cout << "}"; 
+				
+			acc = accuracy(dataCopy); 
+			cout << " accuracy is  " << setprecision(4) << acc  << "%" << endl;
+			
+			if(acc > localAcc) 
+			{ 
+				localAcc = acc; 
+				copyBest = currentFeatures; 
+			}
+			
+			dataCopy.erase(dataCopy.begin() + 1, dataCopy.end()); //clears dataCopy except for the class labels
+            currentFeatures.clear();  
+		}
+		
+		currentBest = copyBest; 
+        cout << "The best feature set of 3 is: "; 
+        for(int i = 0; i < currentBest.size(); i++) 
+        { 
+			cout << currentBest.at(i) << " "; 
+		} 
+        cout << "with an accuracy of " << localAcc << "%" << endl << endl; 
+        
+        if(localAcc > bestAcc || currentBest.size() < 3) //Not sure if second half contributes anything but keeping it regardless
+        { 
+			bestFeatures = currentBest; 
+			bestAcc = localAcc;
+		}
+        else if(localAcc < bestAcc) 
+        { 
+			cout << "Warning! Accuracy is decreasing. Continuing check in case of local maxima." << endl; 
+		} 
+		
+        //NOTE: THIS IF STATEMENT WAS INCLUDED TO FORCEFULLY STOP THE LOOPS AS IT IS ALREADY KNOWN THAT THE DATASETS HAVE A MAX SET OF 3 BEST FEATURES
+        if(currentBest.size() == 3) //removing the contents of this if statement will allow the algorithm to do a complete search of each feature
+        {
+			bestFeatures = currentBest;
+			bestAcc = localAcc;
+			break;
+		}
+		
+		copyBest.clear();
+	}
+	
+	cout << endl << "Finished search!!" << endl; 
+    cout << "The best feature subset of 3 is: "; 
+    for(int i = 0; i < bestFeatures.size(); i++) { cout << bestFeatures.at(i) << " "; } 
+    cout << "which has an accuracy of " << bestAcc << "%" << endl;    
 }
 
 void backwardElimination()
@@ -163,6 +233,7 @@ int main()
 			if(input == "1")
 			{
 				// calls Forward Selection function
+				forwardSelection();
 				validInput = true;
 			}
 			else if(input == "2")
