@@ -197,13 +197,20 @@ void forwardSelection()//vector< vector< long double> dataSet)
 
 void backwardElimination()
 {
-	vector<int> bestFeatures; //only used to store final set of best features for output
+	vector<int> bestFeatures(dataSet.size() - 1); //starts with all features
     vector<int> currentBest;  //updates every iteration with the best feature(s)
     vector<int> copyBest; //purely used to copy stored data to update currentBest after the nested for loop
     vector<vector<long double>> dataCopy; //a modified copy of dataSet to be used to find the accuracy of the current selected features
     dataCopy.push_back(dataSet.at(0)); //add class labels from dataSet to dataCopy
     vector<int> currentFeatures; //updates every iteration with current best features and next feature to be tested
     double acc, localAcc, bestAcc; //used to keep track of varying accuracies
+    
+    for(int i = 0; i < bestFeatures.size(); i++) //populates bestFeatures with all features
+    {
+		bestFeatures[i] = i + 1;
+	}
+	
+	currentBest = bestFeatures;
     
     for(int i = 1; i < dataSet.size(); i++)
     {
@@ -219,8 +226,8 @@ void backwardElimination()
 			
 			if(find(currentFeatures.begin(), currentFeatures.end(), j) == currentFeatures.end()) //if feature "j" was not found then it can be added to currentFeatures (avoids duplicates)
 			{
-				dataCopy.push_back(dataSet.at(j)); //adds next column of features   
-				currentFeatures.push_back(j); //adds next column of features
+				dataCopy.erase(dataSet.begin() + j); //removes worse column of features   
+				currentFeatures.erase(currentFeatures.begin() + j); //adds next column of features
 				cout << "Using feature(s) { "; 
             
 				for(int l = 0; l < currentFeatures.size(); l++) 
@@ -330,6 +337,7 @@ int main()
 			else if(input == "2")
 			{
 				// calls Backward Elimination function
+				backwardElimination();
 				validInput = true;
 			}
 			else
