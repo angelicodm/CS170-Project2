@@ -187,15 +187,99 @@ void forwardSelection()//vector< vector< long double> dataSet)
 	}
 	
 	cout << endl << "Finished search!!" << endl; 
-    cout << "The best feature subset of 3 is: "; 
-    for(int i = 0; i < bestFeatures.size(); i++) { cout << bestFeatures.at(i) << " "; } 
-    cout << "which has an accuracy of " << setprecision(4) << bestAcc << "%" << endl; 
-    
+    cout << "The best feature subset of 3 is { "; 
+    for(int i = 0; i < bestFeatures.size(); i++) 
+    { 
+		cout << bestFeatures.at(i) << " "; 
+	} 
+    cout << "} which has an accuracy of " << setprecision(4) << bestAcc << "%" << endl; 
 }
 
 void backwardElimination()
 {
+	vector<int> bestFeatures; //only used to store final set of best features for output
+    vector<int> currentBest;  //updates every iteration with the best feature(s)
+    vector<int> copyBest; //purely used to copy stored data to update currentBest after the nested for loop
+    vector<vector<long double>> dataCopy; //a modified copy of dataSet to be used to find the accuracy of the current selected features
+    dataCopy.push_back(dataSet.at(0)); //add class labels from dataSet to dataCopy
+    vector<int> currentFeatures; //updates every iteration with current best features and next feature to be tested
+    double acc, localAcc, bestAcc; //used to keep track of varying accuracies
+    
+    for(int i = 1; i < dataSet.size(); i++)
+    {
+		localAcc = 0.0; //resets localAcc for next set of features
+		for(int j = 1; j < dataSet.size(); j++)
+		{
+			currentFeatures = currentBest; //features to be tested include the best features found already
+			
+			for(int k = 0; k < currentFeatures.size(); k++)
+			{
+				dataCopy.push_back(dataSet.at(currentFeatures.at(k))); //adds the next column feature to dataCopy from already selected features
+			}
+			
+			if(find(currentFeatures.begin(), currentFeatures.end(), j) == currentFeatures.end()) //if feature "j" was not found then it can be added to currentFeatures (avoids duplicates)
+			{
+				dataCopy.push_back(dataSet.at(j)); //adds next column of features   
+				currentFeatures.push_back(j); //adds next column of features
+				cout << "Using feature(s) { "; 
+            
+				for(int l = 0; l < currentFeatures.size(); l++) 
+				{
+					cout << currentFeatures.at(l) << " "; 
+				}
+				
+				cout << "}"; 
+				
+				acc = accuracy(dataCopy); 
+				cout << " accuracy is  " << setprecision(4) << acc  << "%" << endl;
+			
+				if(acc > localAcc) 
+				{	 
+					localAcc = acc; 
+					copyBest = currentFeatures; 
+				}
+			}
+			
+			dataCopy.erase(dataCopy.begin() + 1, dataCopy.end()); //clears dataCopy except for the class labels
+            currentFeatures.clear();  
+		}
+		
+		currentBest = copyBest; 
+        cout << "Feature set { "; 
+        for(int i = 0; i < currentBest.size(); i++) 
+        { 
+			cout << currentBest.at(i) << " "; 
+		} 
+        cout << "} was best, accuracy is " << setprecision(4) << localAcc << "%" << endl << endl; 
+        
+        if(localAcc > bestAcc || currentBest.size() < 3) //Not sure if second half contributes anything but keeping it regardless
+        { 
+			bestFeatures = currentBest; 
+			bestAcc = localAcc;
+		}
+        else if(localAcc < bestAcc) 
+        { 
+			cout << "(Warning, Accuracy has decreased! Continuing check in case of local maxima)" << endl; 
+		} 
+		
+        //NOTE: THIS IF STATEMENT WAS INCLUDED TO FORCEFULLY STOP THE LOOPS AS IT IS ALREADY KNOWN THAT THE DATASETS HAVE A MAX SET OF 3 BEST FEATURES
+        if(currentBest.size() == 3) //removing the contents of this if statement will allow the algorithm to do a complete search of each feature
+        {
+			bestFeatures = currentBest;
+			bestAcc = localAcc;
+			break;
+		}
+		
+		copyBest.clear();
+	}
 	
+	cout << endl << "Finished search!!" << endl; 
+    cout << "The best feature subset of 3 is { "; 
+    for(int i = 0; i < bestFeatures.size(); i++) 
+    { 
+		cout << bestFeatures.at(i) << " "; 
+	} 
+    cout << "} which has an accuracy of " << setprecision(4) << bestAcc << "%" << endl;
 }
 
 
